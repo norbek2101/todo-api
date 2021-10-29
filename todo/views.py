@@ -39,7 +39,7 @@ class TaskDetailView(APIView):
 
     def put(self, request, pk):
         task = self.get_object(pk)
-        serializer = TodoSerializer(task, data=request.data)
+        serializer = TodoSerializer(task, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
