@@ -18,13 +18,14 @@ class TaskListView(APIView):
         responses={200: TodoSerializer(many=True)},
         tags=['Tasks'],
     )
-    def get(self, request, format=None):
-        task = Task.objects.all()
-        serializer = TodoSerializer(task, many=True)
+    def get(self, request):
+        user_id = request.user.id
+        task = Task.objects.all().filter(user__id=user_id)
+        serializer = TodoSerializer(task,  many=True)
         return Response(serializer.data)
 
     @swagger_auto_schema(
-        query_serializer= TodoSerializer,
+        request_body= TodoSerializer,
         operation_description="Add Single Task",
         responses={201: TodoSerializer()},
         tags=['Tasks'],
@@ -35,6 +36,32 @@ class TaskListView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
