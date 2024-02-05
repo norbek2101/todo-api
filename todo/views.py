@@ -4,6 +4,7 @@ from todo.serializers import TodoSerializer
 from django.http import Http404
 
 from rest_framework.views import APIView
+from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
@@ -12,7 +13,8 @@ from drf_yasg.utils import swagger_auto_schema
 
 
 class TaskListView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     @swagger_auto_schema(
         operation_description="List of Tasks",
@@ -21,7 +23,8 @@ class TaskListView(APIView):
     )
     def get(self, request):
         user_id = request.user.id
-        task = Task.objects.all().filter(user__id=user_id)
+        # task = Task.objects.all().filter(user__id=user_id)
+        task = Task.objects.all()
         serializer = TodoSerializer(task,  many=True)
         return Response(serializer.data)
 
@@ -40,7 +43,8 @@ class TaskListView(APIView):
 
 
 class TaskDetailView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get_object(self, pk):
         try:
@@ -57,7 +61,7 @@ class TaskDetailView(APIView):
         task = self.get_object(pk)
         serializer = TodoSerializer(task)
         return Response(serializer.data)
-
+    
 
     @swagger_auto_schema(
         operation_description="Update the task",
@@ -81,3 +85,17 @@ class TaskDetailView(APIView):
         task = self.get_object(pk)
         task.delete()
         return Response(status=status.HTTP_200_OK)
+
+
+class TasksbyUser(APIView):
+    queryset = Task.objects.all()
+    serializer_class = TodoSerializer
+
+    @swagger_auto_schema(
+        tags=['Tasks'],
+    )
+    def get (self, request, id):
+        tasks = Task.objects.all().filter(user=id)
+        serializer = TodoSerializer(tasks, many=True)
+        return Response(serializer.data)
+
