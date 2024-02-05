@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Task</title>
+</head>
+<body>
+
+<h1>Create Task</h1>
+
+<form id="createTaskForm">
+    <label for="target">Target:</label>
+    <input type="text" id="target" name="target" required><br>
+
+    <label for="is_completed">Is Completed:</label>
+    <input type="checkbox" id="is_completed" name="is_completed"><br>
+
+    <label for="type">Type:</label>
+    <select id="type" name="type">
+        <option value="red">Do it now</option>
+        <option value="orange">Must do today</option>
+        <option value="yellow">Do it anyway</option>
+        <option value="blue">Do it</option>
+        <option value="green">Just do it</option>
+    </select><br>
+
+    <label for="user">User ID:</label>
+    <input type="number" id="user" name="user" required><br>
+
+    <button type="button" onclick="createTask()">Create Task</button>
+</form>
+
+<script>
+    function createTask() {
+        var formData = {
+            "target": document.getElementById("target").value,
+            "is_completed": document.getElementById("is_completed").checked,
+            "type": document.getElementById("type").value,
+            "user": parseInt(document.getElementById("user").value)
+        };
+
+        fetch('http://127.0.0.1:8000/api/v1/todo/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken') // Include CSRF token if your Django app uses CSRF protection
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Success:', data);
+            // You can handle success response here
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            // You can handle error here
+        });
+    }
+
+    // Function to get CSRF token from cookie (if applicable)
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+</body>
+</html>
